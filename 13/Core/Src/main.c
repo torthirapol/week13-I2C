@@ -118,23 +118,26 @@ int main(void) {
 	while (1) {
 		Button[0] = HAL_GPIO_ReadPin(GPIOC, GPIO_PIN_13);
 
-		if (Button[0] == 0 && Button[1] == 1) {
+		if (Button[0] == 0 && Button[1] == 1) {// press button
 			IOExpdrExampleReadFlag = 1;
 			eepromExampleWriteFlag = 1;
-			eepromExampleReadFlag = 1;
-			IOExpdrExampleWriteFlag = 1;
-
-			//IOExpdrExampleReadFlag = 1;
-			IOExpenderReadPinA(&IOExpdrDataReadBack);
-			HAL_Delay(10);
-
-			//eepromExampleWriteFlag = 1;
-			EEPROMWriteExample();
-			HAL_Delay(10);
-
+//			eepromExampleReadFlag = 1;
+//			IOExpdrExampleWriteFlag = 1;
+//
+//			IOExpenderReadPinA(&IOExpdrDataReadBack);
+//			HAL_Delay(10);
+//
+//			EEPROMWriteExample();
+//			HAL_Delay(10);
 		}
 
 		Button[1] = Button[0];
+
+		IOExpenderReadPinA(&IOExpdrDataReadBack);
+		HAL_Delay(10);
+
+		EEPROMWriteExample();
+		HAL_Delay(10);
 
 		eepromExampleReadFlag = 1;
 		EEPROMReadExample(eepromDataReadBack, 4);
@@ -142,7 +145,8 @@ int main(void) {
 
 		IOExpdrDataWrite = (eepromDataReadBack[3] << 3)
 				+ (eepromDataReadBack[2] << 2) + (eepromDataReadBack[1] << 1)
-				+ (eepromDataReadBack[0] << 0);
+				+ (eepromDataReadBack[0]);
+
 		IOExpdrExampleWriteFlag = 1;
 		IOExpenderWritePinB(IOExpdrDataWrite);
 		HAL_Delay(10);
@@ -291,9 +295,10 @@ static void MX_GPIO_Init(void) {
 }
 
 /* USER CODE BEGIN 4 */
+static uint8_t data[4] = { 0 };
 void EEPROMWriteExample() {
 	if (eepromExampleWriteFlag && hi2c1.State == HAL_I2C_STATE_READY) {
-		static uint8_t data[4] = { 0 };
+
 		data[0] = 0b0001 & (IOExpdrDataReadBack);
 		data[1] = 0b0001 & (IOExpdrDataReadBack >> 1);
 		data[2] = 0b0001 & (IOExpdrDataReadBack >> 2);
